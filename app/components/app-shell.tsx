@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +22,7 @@ import { ChatBot } from "./chatbot";
 import { ErrorBoundary } from "./error-boundary";
 import { loadNotifications, getUnreadCount, markAllNotificationsAsRead, Notification } from "../lib/notifications-storage";
 import { clearSession, DEFAULT_AUTH_USER, loadStoredUser, saveStoredUser, type AuthUser } from "../lib/auth-storage";
+import { hasAccess } from "../lib/rbac";
 
 type AppShellProps = {
   overline: string;
@@ -55,6 +54,7 @@ export function AppShell({ overline, title, action, searchPlaceholder = "Search 
   const [settingsMessage, setSettingsMessage] = useState("");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -157,7 +157,10 @@ export function AppShell({ overline, title, action, searchPlaceholder = "Search 
 
   return (
     <main className="dashboard-shell">
-      <aside className="sidebar">
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+
+      <aside className={`sidebar${sidebarOpen ? " sidebar-open" : ""}`}>
         <div className="sidebar-brand">
           <Image
             src="/d0f96db7-1.png"
@@ -171,11 +174,13 @@ export function AppShell({ overline, title, action, searchPlaceholder = "Search 
 
         <div className="sidebar-nav-wrap">
           <ul className="nav-list">
-            {navItems.map(({ href, label, Icon }) => {
+            {navItems
+              .filter(({ href }) => hasAccess(href, user.role))
+              .map(({ href, label, Icon }) => {
               const active = pathname === href;
               return (
                 <li key={label}>
-                  <Link className={`nav-item${active ? " active" : ""}`} href={href}>
+                  <Link className={`nav-item${active ? " active" : ""}`} href={href} onClick={() => setSidebarOpen(false)}>
                     <span className="nav-icon-wrap"><Icon className="nav-icon-svg" /></span>
                     <span>{label}</span>
                   </Link>
@@ -188,6 +193,9 @@ export function AppShell({ overline, title, action, searchPlaceholder = "Search 
 
       <section className="main-panel">
         <div className="topbar">
+          <button className="hamburger-btn" type="button" aria-label="Toggle navigation" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <span /><span /><span />
+          </button>
           <label className="search-box search-input-shell">
             <SearchIcon className="search-leading-icon" />
             <input
@@ -210,12 +218,7 @@ export function AppShell({ overline, title, action, searchPlaceholder = "Search 
             <div className="divider" />
             <div className="topbar-actions" ref={dropdownRef}>
               <div className="icon-button-wrapper">
-                <button 
-                  className="icon-button notif-button" 
-                  type="button" 
-                  aria-label="Notifications" 
-                  onClick={handleNotificationPanelOpen}
-                >
+                <button className="icon-button notif-button" type="button" aria-label="Notifications" onClick={handleNotificationPanelOpen}>
                   <BellIcon className="topbar-icon" />
                   {unreadCount > 0 && <span className="notif-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
                 </button>
@@ -254,24 +257,26 @@ export function AppShell({ overline, title, action, searchPlaceholder = "Search 
               <button className="icon-button" type="button" aria-label="Settings" onClick={() => setShowSettings(!showSettings)}>
                 <SettingsIcon className="topbar-icon" />
               </button>
-	              {showSettings && (
-	                <div className="dropdown-panel settings-panel">
-	                  <div className="dropdown-title">Settings</div>
-	                  <button className="settings-item" type="button" onClick={() => { clearSession(); window.location.href = "/"; }}>
-	                    <span>Logout</span>
-	                  </button>
-	                  <button className="settings-item is-disabled" type="button" onClick={() => setSettingsMessage("Profile settings will be enabled in a future release.")}>
-	                    <span>Profile Settings</span>
-	                  </button>
-	                  <button className="settings-item is-disabled" type="button" onClick={() => setSettingsMessage("System settings are not available in this demo build yet.")}>
-	                    <span>System Settings</span>
-	                  </button>
-	                  <button className="settings-item is-disabled" type="button" onClick={() => setSettingsMessage("Help and support actions will be connected in the next iteration.")}>
-	                    <span>Help & Support</span>
-	                  </button>
-                    {settingsMessage ? <div className="settings-note">{settingsMessage}</div> : null}
-	                </div>
-	              )}              </div>            </div>
+              {showSettings && (
+                <div className="dropdown-panel settings-panel">
+                  <div className="dropdown-title">Settings</div>
+                  <button className="settings-item" type="button" onClick={() => { clearSession(); window.location.href = "/"; }}>
+                    <span>Logout</span>
+                  </button>
+                  <button className="settings-item is-disabled" type="button" onClick={() => setSettingsMessage("Profile settings will be enabled in a future release.")}>
+                    <span>Profile Settings</span>
+                  </button>
+                  <button className="settings-item is-disabled" type="button" onClick={() => setSettingsMessage("System settings are not available in this demo build yet.")}>
+                    <span>System Settings</span>
+                  </button>
+                  <button className="settings-item is-disabled" type="button" onClick={() => setSettingsMessage("Help and support actions will be connected in the next iteration.")}>
+                    <span>Help &amp; Support</span>
+                  </button>
+                  {settingsMessage ? <div className="settings-note">{settingsMessage}</div> : null}
+                </div>
+              )}
+            </div>
+            </div>
             <div className="profile-block">
               <div className="profile-meta">
                 <div className="profile-name">{user.name}</div>
@@ -302,7 +307,3 @@ export function AppShell({ overline, title, action, searchPlaceholder = "Search 
     </main>
   );
 }
-
-
-
-

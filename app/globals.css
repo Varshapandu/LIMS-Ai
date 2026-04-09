@@ -1235,3 +1235,92 @@ textarea {
 tr {
   transition: background var(--duration-fast) var(--ease-out);
 }
+
+/* ─── Hamburger button (mobile only) ─── */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.hamburger-btn:hover {
+  background: var(--bg-subtle);
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #1a2640;
+  border-radius: 2px;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+/* ─── Mobile sidebar overlay ─── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+@media (max-width: 980px) {
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    animation: fadeInUp 0.2s var(--ease-out) both;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -320px;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    width: 280px;
+    transition: left var(--duration-normal) var(--ease-out);
+    box-shadow: none;
+    flex-direction: column;
+  }
+
+  .sidebar.sidebar-open {
+    left: 0;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .sidebar-nav-wrap {
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .nav-item {
+    border-left: 3px solid transparent;
+    border-bottom: 0;
+  }
+
+  .nav-item.active {
+    border-left-color: #12bcc0;
+    border-bottom-color: transparent;
+  }
+}

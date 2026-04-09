@@ -10,6 +10,7 @@ import { StatsGridSkeleton, PanelSkeleton } from "../components/skeletons";
 import { apiRequest } from "../lib/api";
 import { calculateDashboardMetrics } from "../lib/billing-storage";
 import { downloadBlob } from "../lib/browser-file";
+import { downloadCsv } from "../lib/export-utils";
 import { realtimeEvents } from "../lib/realtime-events";
 import { useAuthRedirect } from "../lib/use-auth-redirect";
 
@@ -185,15 +186,36 @@ export default function DashboardPage() {
     downloadBlob(blob, `dashboard-report-${new Date().toISOString().split("T")[0]}.json`);
   }
 
+  function handleExportCsv() {
+    const rows = [{
+      total_patients: snapshot.overview.total_patients,
+      revenue: snapshot.overview.revenue,
+      pending_tests: snapshot.overview.pending_tests,
+      completed_tests: snapshot.overview.completed_tests,
+      critical_alerts: snapshot.overview.critical_alerts,
+      today_visits: snapshot.overview.today_visits,
+      reported_visits: snapshot.overview.reported_visits,
+      capacity_utilization: snapshot.capacity.utilization_percent + "%",
+      generated_at: new Date().toISOString(),
+    }];
+    downloadCsv(rows, `dashboard-${new Date().toISOString().split("T")[0]}.csv`);
+  }
+
   return (
     <AppShell
       overline="System Overview"
       title="Diagnostic Intelligence"
       action={
-        <button className="export-button" type="button" onClick={handleExportReport}>
-          <ExportIcon className="export-icon" />
-          <span>Export Report</span>
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button className="export-button" type="button" onClick={handleExportCsv}>
+            <ExportIcon className="export-icon" />
+            <span>CSV</span>
+          </button>
+          <button className="export-button" type="button" onClick={handleExportReport}>
+            <ExportIcon className="export-icon" />
+            <span>JSON</span>
+          </button>
+        </div>
       }
     >
       {loading ? (
