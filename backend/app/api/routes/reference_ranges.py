@@ -12,6 +12,7 @@ from app.api.contracts import (
     ReferenceRangeListItem,
     ReferenceRangeUpsertRequest,
 )
+from app.core.auth_deps import CurrentUser, get_current_user
 from app.db.session import get_db
 from app.models.models import ReferenceRange, SexType, TestCatalog
 
@@ -24,6 +25,7 @@ def list_reference_ranges(
     service_category: str | None = Query(default=None),
     limit: int = Query(default=250, ge=1, le=1000),
     db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
 ) -> list[ReferenceRangeListItem]:
     query = db.query(ReferenceRange, TestCatalog).join(TestCatalog, TestCatalog.id == ReferenceRange.test_id)
 
@@ -70,7 +72,11 @@ def list_reference_ranges(
 
 
 @router.post("", response_model=ReferenceRangeListItem, status_code=status.HTTP_201_CREATED)
-def create_reference_range(payload: ReferenceRangeUpsertRequest, db: Session = Depends(get_db)) -> ReferenceRangeListItem:
+def create_reference_range(
+    payload: ReferenceRangeUpsertRequest,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+) -> ReferenceRangeListItem:
     test = db.query(TestCatalog).filter(TestCatalog.id == payload.test_id).first()
     if not test:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Test not found")
@@ -98,7 +104,12 @@ def create_reference_range(payload: ReferenceRangeUpsertRequest, db: Session = D
 
 
 @router.patch("/{reference_range_id}", response_model=ReferenceRangeListItem)
-def update_reference_range(reference_range_id: str, payload: ReferenceRangeUpsertRequest, db: Session = Depends(get_db)) -> ReferenceRangeListItem:
+def update_reference_range(
+    reference_range_id: str,
+    payload: ReferenceRangeUpsertRequest,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+) -> ReferenceRangeListItem:
     reference_range = db.query(ReferenceRange).filter(ReferenceRange.id == reference_range_id).first()
     if not reference_range:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reference range not found")
@@ -127,7 +138,11 @@ def update_reference_range(reference_range_id: str, payload: ReferenceRangeUpser
 
 
 @router.delete("/{reference_range_id}", response_model=ReferenceRangeDeleteResponse)
-def delete_reference_range(reference_range_id: str, db: Session = Depends(get_db)) -> ReferenceRangeDeleteResponse:
+def delete_reference_range(
+    reference_range_id: str,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+) -> ReferenceRangeDeleteResponse:
     reference_range = db.query(ReferenceRange).filter(ReferenceRange.id == reference_range_id).first()
     if not reference_range:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reference range not found")

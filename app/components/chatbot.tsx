@@ -1,5 +1,7 @@
 "use client";
 
+import "./chatbot.css";
+
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 import { loadStoredUser } from "../lib/auth-storage";

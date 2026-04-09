@@ -1,5 +1,7 @@
 "use client";
 
+import "./approvals.css";
+
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SVGProps } from "react";

@@ -13,6 +13,7 @@ backend/.env
 
 # Logs
 *.log
+.codex-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

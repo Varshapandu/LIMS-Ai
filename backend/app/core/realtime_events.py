@@ -2,7 +2,7 @@
 
 from typing import Callable, Dict, List, Set, Optional
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel
 import json
 
@@ -76,7 +76,7 @@ class RealtimeEventManager:
         """Create and emit an event"""
         event = RealtimeEvent(
             type=event_type,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             data=data
         )
         self.emit(event)

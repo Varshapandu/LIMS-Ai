@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
@@ -13,13 +13,15 @@ type LoginResponse = {
   full_name: string;
 };
 
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
 const DEMO_EMAIL = "admin@ailims.com";
 const DEMO_PASSWORD = "admin123";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState(DEMO_EMAIL);
-  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [email, setEmail] = useState(DEMO_MODE ? DEMO_EMAIL : "");
+  const [password, setPassword] = useState(DEMO_MODE ? DEMO_PASSWORD : "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -55,13 +57,18 @@ export default function LoginPage() {
       completeLocalLogin(response.full_name, response.role.split("_").join(" ").toUpperCase(), response.access_token);
       return;
     } catch (requestError) {
-      if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      // Only allow demo fallback when demo mode is explicitly enabled
+      if (DEMO_MODE && email === DEMO_EMAIL && password === DEMO_PASSWORD) {
         completeLocalLogin("Lab Admin", "ADMIN");
         return;
       }
 
       const message = requestError instanceof Error ? requestError.message : "Unable to sign in.";
-      setError(`${message}. The backend is currently unavailable, so only the demo credentials will work in local mode.`);
+      setError(
+        DEMO_MODE
+          ? `${message}. The backend is currently unavailable, so only the demo credentials will work in local mode.`
+          : message,
+      );
       setLoading(false);
     }
   }
@@ -84,33 +91,41 @@ export default function LoginPage() {
         <div className="login-card">
           <div className="kicker">Secure access</div>
           <h2 className="card-title">Sign in to portal</h2>
-          <p className="card-copy">Use the backend demo credentials and you will be redirected into the operational workspace.</p>
+          <p className="card-copy">
+            {DEMO_MODE
+              ? "Use the backend demo credentials and you will be redirected into the operational workspace."
+              : "Enter your credentials to access the operational workspace."}
+          </p>
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="field">
               <label className="label" htmlFor="email">Email</label>
-              <input className="input" id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+              <input className="input" id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
             </div>
             <div className="field">
               <label className="label" htmlFor="password">Password</label>
-              <input className="input" id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+              <input className="input" id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" />
             </div>
             <div className="row">
               <label><input type="checkbox" defaultChecked /> Remember me</label>
-              <span>Local demo fallback enabled</span>
+              {DEMO_MODE && <span>Local demo fallback enabled</span>}
             </div>
             <button className="primary-btn" type="submit" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</button>
           </form>
           {error ? <div className="error-banner">{error}</div> : null}
-          <div className="cred-box">
-            <div><strong>Demo email:</strong> {DEMO_EMAIL}</div>
-            <div><strong>Demo password:</strong> {DEMO_PASSWORD}</div>
-          </div>
+          {DEMO_MODE && (
+            <div className="cred-box">
+              <div><strong>Demo email:</strong> {DEMO_EMAIL}</div>
+              <div><strong>Demo password:</strong> {DEMO_PASSWORD}</div>
+            </div>
+          )}
           <div className="quick-roles">
             <span className="role-pill">Admin</span>
             <span className="role-pill">Lab Technician</span>
             <span className="role-pill">Doctor</span>
           </div>
-          <div className="footer-note">Backend login will work once the FastAPI environment is installed with a supported Python version.</div>
+          {DEMO_MODE && (
+            <div className="footer-note">Backend login will work once the FastAPI environment is installed with a supported Python version.</div>
+          )}
         </div>
       </section>
     </main>

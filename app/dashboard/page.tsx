@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import "./dashboard.css";
 
 import { useEffect, useMemo, useState, useRef } from "react";
 

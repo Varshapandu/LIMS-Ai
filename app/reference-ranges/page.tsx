@@ -1,5 +1,7 @@
 "use client";
 
+import "./ranges.css";
+
 import { useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "../components/app-shell";

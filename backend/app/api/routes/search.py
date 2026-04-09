@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.contracts import SearchWorklistItem
+from app.core.auth_deps import CurrentUser, get_current_user
 from app.db.session import get_db
 from app.services.search_service import SearchService
 
@@ -21,6 +22,7 @@ def search_worklist(
     date_to: date | None = Query(default=None),
     limit: int = Query(default=100, ge=1, le=200),
     db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
 ) -> list[SearchWorklistItem]:
     return SearchService.search_worklist(
         db,

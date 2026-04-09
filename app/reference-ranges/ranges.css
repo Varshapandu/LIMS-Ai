@@ -1,0 +1,288 @@
+/* Reference Ranges page styles */
+.range-admin-page {
+  display: grid;
+  gap: 24px;
+}
+
+.range-admin-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.range-admin-summary-card {
+  padding: 24px 26px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,250,251,0.98));
+  box-shadow: 0 16px 32px rgba(10, 42, 71, 0.08);
+}
+
+.range-admin-summary-card strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 40px;
+  line-height: 1;
+  color: #0c1734;
+}
+
+.range-admin-summary-card span {
+  display: block;
+  margin-top: 10px;
+  color: #6d7b93;
+}
+
+.range-admin-summary-label {
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #0d8f99;
+}
+
+.range-admin-toolbar {
+  padding: 24px 26px;
+  border-radius: 28px;
+}
+
+.range-admin-toolbar-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.range-admin-filter-btn {
+  height: 56px;
+  min-width: 160px;
+}
+
+.range-admin-status-note {
+  margin-top: 14px;
+  color: #657692;
+  font-size: 15px;
+}
+
+.range-admin-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.range-admin-list-card,
+.range-admin-editor-card {
+  padding: 24px 26px 28px;
+  border-radius: 30px;
+  position: relative;
+}
+
+.range-admin-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.range-admin-card-head h3 {
+  margin: 6px 0 0;
+  font-size: 30px;
+  color: #091834;
+}
+
+.range-admin-table-head,
+.range-admin-row {
+  display: grid;
+  grid-template-columns: 1.25fr 0.9fr 1fr 0.45fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.range-admin-table-head {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: #f8fbfc;
+  color: #29364e;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.range-admin-table-body {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  max-height: 760px;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.range-admin-row {
+  width: 100%;
+  text-align: left;
+  padding: 18px;
+  border: 1px solid rgba(12, 23, 52, 0.08);
+  border-radius: 22px;
+  background: #ffffff;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.range-admin-row:hover,
+.range-admin-row.active {
+  border-color: rgba(13, 143, 153, 0.42);
+  box-shadow: 0 18px 28px rgba(9, 24, 52, 0.08);
+  transform: translateY(-1px);
+}
+
+.range-admin-test-cell strong,
+.range-admin-reference-cell strong {
+  display: block;
+  color: #0b1734;
+  font-size: 18px;
+}
+
+.range-admin-test-cell span,
+.range-admin-reference-cell span,
+.range-admin-rule-cell small,
+.range-admin-default-cell {
+  color: #73819a;
+  font-size: 14px;
+}
+
+.range-admin-rule-cell span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(13, 143, 153, 0.1);
+  color: #0d8f99;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.range-admin-editor-card {
+  overflow: visible;
+}
+
+.range-admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
+}
+
+.range-admin-full-span {
+  grid-column: 1 / -1;
+}
+
+.range-admin-catalog-popover {
+  margin-top: 10px;
+  border: 1px solid rgba(12, 23, 52, 0.08);
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 18px 34px rgba(8, 21, 47, 0.14);
+  overflow: hidden;
+}
+
+.range-admin-catalog-option {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(12, 23, 52, 0.06);
+  background: #ffffff;
+}
+
+.range-admin-catalog-option:last-child {
+  border-bottom: 0;
+}
+
+.range-admin-catalog-option strong {
+  display: block;
+  color: #0b1734;
+  font-size: 16px;
+}
+
+.range-admin-catalog-option span {
+  display: block;
+  margin-top: 4px;
+  color: #70809a;
+  font-size: 13px;
+}
+
+.range-admin-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #41506a;
+  font-weight: 600;
+}
+
+.range-admin-checkbox-row input {
+  width: 18px;
+  height: 18px;
+}
+
+.range-admin-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.range-admin-action-group {
+  display: flex;
+  gap: 12px;
+}
+
+.range-admin-primary-btn,
+.range-admin-danger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  padding: 0 24px;
+  border-radius: 18px;
+  font-weight: 800;
+}
+
+.range-admin-primary-btn {
+  color: #ffffff;
+  background: linear-gradient(90deg, #118f97, #1e4774);
+  box-shadow: 0 18px 28px rgba(16, 93, 123, 0.24);
+}
+
+.range-admin-danger-btn {
+  color: #b5333d;
+  background: rgba(219, 68, 85, 0.08);
+}
+
+@media (max-width: 1280px) {
+  .range-admin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 920px) {
+  .range-admin-summary-grid,
+  .range-admin-toolbar-grid,
+  .range-admin-form-grid,
+  .range-admin-table-head,
+  .range-admin-row {
+    grid-template-columns: 1fr;
+  }
+
+  .range-admin-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .range-admin-action-group {
+    justify-content: stretch;
+  }
+
+  .range-admin-primary-btn,
+  .range-admin-danger-btn {
+    width: 100%;
+  }
+}

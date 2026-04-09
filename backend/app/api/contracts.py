@@ -1,8 +1,13 @@
-﻿from __future__ import annotations
+"""Pydantic request / response contracts for the AI-LIMS API.
+
+All optional fields use the modern ``T | None`` syntax (Python 3.10+)
+instead of ``typing.Optional[T]``.
+"""
+
+from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -21,11 +26,11 @@ class LoginResponse(BaseModel):
 
 class CreatePatientRequest(BaseModel):
     first_name: str
-    last_name: Optional[str] = None
+    last_name: str | None = None
     sex: str
-    age_years: Optional[int] = None
-    mobile_number: Optional[str] = None
-    email: Optional[EmailStr] = None
+    age_years: int | None = None
+    mobile_number: str | None = None
+    email: EmailStr | None = None
 
 
 class PatientResponse(BaseModel):
@@ -33,14 +38,14 @@ class PatientResponse(BaseModel):
     patient_code: str
     full_name: str
     sex: str
-    age_years: Optional[int] = None
-    mobile_number: Optional[str] = None
-    email: Optional[EmailStr] = None
+    age_years: int | None = None
+    mobile_number: str | None = None
+    email: EmailStr | None = None
 
 
 class UpdatePatientRequest(BaseModel):
-    mobile_number: Optional[str] = None
-    email: Optional[EmailStr] = None
+    mobile_number: str | None = None
+    email: EmailStr | None = None
 
 
 class BillingTestLine(BaseModel):
@@ -52,7 +57,7 @@ class BillingTestLine(BaseModel):
 
 class CreateInvoiceRequest(BaseModel):
     patient_id: str
-    referral_source_id: Optional[str] = None
+    referral_source_id: str | None = None
     discount_amount: Decimal = Field(default=Decimal("0.00"))
     lines: list[BillingTestLine]
 
@@ -92,8 +97,8 @@ class PaymentRequest(BaseModel):
     invoice_number: str
     amount: Decimal = Field(gt=Decimal("0.00"))
     payment_mode: str
-    payment_reference: Optional[str] = None
-    remarks: Optional[str] = None
+    payment_reference: str | None = None
+    remarks: str | None = None
 
 
 class PaymentResponse(BaseModel):
@@ -118,8 +123,8 @@ class CatalogTestItem(BaseModel):
     department_name: str
     price: Decimal
     turnaround_minutes: int
-    unit: Optional[str] = None
-    reference_range_text: Optional[str] = None
+    unit: str | None = None
+    reference_range_text: str | None = None
 
 
 class SearchWorklistItem(BaseModel):
@@ -129,8 +134,8 @@ class SearchWorklistItem(BaseModel):
     visit_id: str
     visit_number: str
     visit_date: datetime
-    invoice_number: Optional[str] = None
-    order_number: Optional[str] = None
+    invoice_number: str | None = None
+    order_number: str | None = None
     barcode_value: str
     test_code: str
     test_name: str
@@ -139,8 +144,8 @@ class SearchWorklistItem(BaseModel):
     container_type: str
     specimen_status: str
     result_status: str
-    report_status: Optional[str] = None
-    tat_due_at: Optional[datetime] = None
+    report_status: str | None = None
+    tat_due_at: datetime | None = None
     net_amount: Decimal = Field(default=Decimal("0.00"))
 
 
@@ -243,7 +248,7 @@ class ReportsRecentReportItem(BaseModel):
     patient_name: str
     department_name: str
     report_status: str
-    generated_at: Optional[datetime] = None
+    generated_at: datetime | None = None
     item_count: int = 0
 
 
@@ -282,21 +287,21 @@ class SpecimenWorklistItem(BaseModel):
     container_type: str
     barcode_value: str
     specimen_status: str
-    rejection_reason: Optional[str] = None
-    tat_due_at: Optional[datetime] = None
+    rejection_reason: str | None = None
+    tat_due_at: datetime | None = None
 
 
 class SpecimenUpdateRequest(BaseModel):
     barcode_value: str
     specimen_status: str
-    rejection_reason: Optional[str] = None
+    rejection_reason: str | None = None
 
 
 class SpecimenUpdateResponse(BaseModel):
     specimen_id: str
     barcode_value: str
     specimen_status: str
-    rejection_reason: Optional[str] = None
+    rejection_reason: str | None = None
     updated_at: datetime
 
 
@@ -305,36 +310,36 @@ class ResultWorklistItem(BaseModel):
     visit_number: str
     patient_id: str
     patient_name: str
-    age_years: Optional[int] = None
-    sex: Optional[str] = None
-    clinical_notes: Optional[str] = None
+    age_years: int | None = None
+    sex: str | None = None
+    clinical_notes: str | None = None
     barcode_value: str
     test_code: str
     test_name: str
-    service_category: Optional[str] = None
-    method_name: Optional[str] = None
+    service_category: str | None = None
+    method_name: str | None = None
     sample_type: str
     container_type: str
     priority: str = "normal"
     specimen_status: str
     result_status: str
-    result_text: Optional[str] = None
-    numeric_value: Optional[Decimal] = None
-    unit: Optional[str] = None
-    reference_range_text: Optional[str] = None
-    tat_due_at: Optional[datetime] = None
+    result_text: str | None = None
+    numeric_value: Decimal | None = None
+    unit: str | None = None
+    reference_range_text: str | None = None
+    tat_due_at: datetime | None = None
 
 
 class ApprovalPatientHistory(BaseModel):
-    diagnosis: Optional[str] = None
-    medication: Optional[str] = None
-    recent_notes: Optional[str] = None
+    diagnosis: str | None = None
+    medication: str | None = None
+    recent_notes: str | None = None
 
 
 class ApprovalClinicalContext(BaseModel):
     fasting_status: str
     fasting_note: str
-    last_review_at: Optional[datetime] = None
+    last_review_at: datetime | None = None
     last_review_note: str
 
 
@@ -347,13 +352,13 @@ class ApprovalAnalyteItem(BaseModel):
     order_test_id: str
     test_code: str
     analyte_name: str
-    method_name: Optional[str] = None
+    method_name: str | None = None
     result_status: str
-    result_text: Optional[str] = None
-    numeric_value: Optional[Decimal] = None
-    unit: Optional[str] = None
-    reference_range_text: Optional[str] = None
-    abnormal_flag: Optional[str] = None
+    result_text: str | None = None
+    numeric_value: Decimal | None = None
+    unit: str | None = None
+    reference_range_text: str | None = None
+    abnormal_flag: str | None = None
     critical_flag: bool = False
     status_label: str
     status_tone: str
@@ -369,8 +374,8 @@ class ApprovalCaseResponse(BaseModel):
     visit_number: str
     patient_id: str
     patient_name: str
-    age_years: Optional[int] = None
-    sex: Optional[str] = None
+    age_years: int | None = None
+    sex: str | None = None
     case_label: str
     analysis_title: str
     critical_alerts: int = 0
@@ -385,7 +390,7 @@ class ApprovalCaseResponse(BaseModel):
     analysis_time_label: str
     doctor_name: str
     doctor_role: str
-    doctor_note: Optional[str] = None
+    doctor_note: str | None = None
     signature_enabled: bool = True
     payment_status: str = "pending"
     due_amount: Decimal = Field(default=Decimal("0.00"))
@@ -393,18 +398,18 @@ class ApprovalCaseResponse(BaseModel):
 
 class ResultEntryRequest(BaseModel):
     order_test_id: str
-    result_text: Optional[str] = None
-    numeric_value: Optional[Decimal] = None
+    result_text: str | None = None
+    numeric_value: Decimal | None = None
     result_status: str
 
 
 class ResultEntryResponse(BaseModel):
     order_test_id: str
     result_status: str
-    result_text: Optional[str] = None
-    numeric_value: Optional[Decimal] = None
-    approved_at: Optional[datetime] = None
-    abnormal_flag: Optional[str] = None
+    result_text: str | None = None
+    numeric_value: Decimal | None = None
+    approved_at: datetime | None = None
+    abnormal_flag: str | None = None
     critical_flag: bool = False
     updated_at: datetime
 
@@ -412,7 +417,7 @@ class ResultEntryResponse(BaseModel):
 class VisitApprovalRequest(BaseModel):
     visit_number: str
     action: str = "approve"
-    doctor_note: Optional[str] = None
+    doctor_note: str | None = None
     intervention_keys: list[str] = Field(default_factory=list)
 
 
@@ -422,12 +427,12 @@ class VisitApprovalResponse(BaseModel):
     visit_status: str
     approved_at: datetime
     action: str = "approve"
-    doctor_note: Optional[str] = None
-    report_number: Optional[str] = None
+    doctor_note: str | None = None
+    report_number: str | None = None
     report_emailed: bool = False
-    report_emailed_to: Optional[str] = None
-    report_email_error: Optional[str] = None
-    message: Optional[str] = None
+    report_emailed_to: str | None = None
+    report_email_error: str | None = None
+    message: str | None = None
 
 
 class ReportLineItem(BaseModel):
@@ -435,11 +440,11 @@ class ReportLineItem(BaseModel):
     test_code: str
     test_name: str
     result_status: str
-    result_text: Optional[str] = None
-    numeric_value: Optional[Decimal] = None
-    unit: Optional[str] = None
-    reference_range_text: Optional[str] = None
-    abnormal_flag: Optional[str] = None
+    result_text: str | None = None
+    numeric_value: Decimal | None = None
+    unit: str | None = None
+    reference_range_text: str | None = None
+    abnormal_flag: str | None = None
     critical_flag: bool = False
 
 
@@ -461,12 +466,9 @@ class ReportDetailResponse(BaseModel):
     patient_id: str
     patient_name: str
     report_status: str
-    generated_at: Optional[datetime] = None
+    generated_at: datetime | None = None
     created_at: datetime
     items: list[ReportLineItem]
-
-
-
 
 
 class ReferenceRangeListItem(BaseModel):
@@ -475,28 +477,28 @@ class ReferenceRangeListItem(BaseModel):
     test_code: str
     test_name: str
     service_category: str
-    sex: Optional[str] = None
-    min_age_years: Optional[int] = None
-    max_age_years: Optional[int] = None
-    unit: Optional[str] = None
-    reference_range_text: Optional[str] = None
-    method_name: Optional[str] = None
-    critical_low: Optional[Decimal] = None
-    critical_high: Optional[Decimal] = None
+    sex: str | None = None
+    min_age_years: int | None = None
+    max_age_years: int | None = None
+    unit: str | None = None
+    reference_range_text: str | None = None
+    method_name: str | None = None
+    critical_low: Decimal | None = None
+    critical_high: Decimal | None = None
     is_default: bool = False
     updated_at: datetime
 
 
 class ReferenceRangeUpsertRequest(BaseModel):
     test_id: str
-    sex: Optional[str] = None
-    min_age_years: Optional[int] = None
-    max_age_years: Optional[int] = None
-    unit: Optional[str] = None
-    reference_range_text: Optional[str] = None
-    method_name: Optional[str] = None
-    critical_low: Optional[Decimal] = None
-    critical_high: Optional[Decimal] = None
+    sex: str | None = None
+    min_age_years: int | None = None
+    max_age_years: int | None = None
+    unit: str | None = None
+    reference_range_text: str | None = None
+    method_name: str | None = None
+    critical_low: Decimal | None = None
+    critical_high: Decimal | None = None
     is_default: bool = False
 
 

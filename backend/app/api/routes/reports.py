@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api.contracts import ReportsAnalyticsResponse
+from app.core.auth_deps import CurrentUser, get_current_user
 from app.db.session import get_db
 from app.services.reports_service import ReportsService
 
@@ -14,6 +15,7 @@ def analytics(
     department: str | None = Query(default=None),
     test_type: str | None = Query(default=None),
     db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
 ) -> ReportsAnalyticsResponse:
     try:
         return ReportsService.get_analytics(

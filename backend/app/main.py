@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.billing import router as billing_router
@@ -16,15 +19,42 @@ from app.db.session import SessionLocal, engine
 from app.models.models import Base
 from app.core.config import settings
 
-app = FastAPI(title=settings.app_name, version=settings.app_version)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Modern lifespan handler — replaces deprecated @app.on_event('startup')."""
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        init_reference_data(db)
+    finally:
+        db.close()
+    yield
+
+
+app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ---------------------------------------------------------------------------
+# Global exception handlers
+# ---------------------------------------------------------------------------
+
+@app.exception_handler(ValueError)
+async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
+    return JSONResponse(status_code=400, content={"detail": str(exc)})
+
+
+# ---------------------------------------------------------------------------
+# Routes
+# ---------------------------------------------------------------------------
 
 app.include_router(auth_router, prefix="/api")
 app.include_router(patients_router, prefix="/api")
@@ -36,16 +66,6 @@ app.include_router(catalog_router, prefix="/api")
 app.include_router(search_router, prefix="/api")
 app.include_router(dashboard_router, prefix="/api")
 app.include_router(reports_router, prefix="/api")
-
-
-@app.on_event("startup")
-def startup() -> None:
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    try:
-        init_reference_data(db)
-    finally:
-        db.close()
 
 
 @app.get("/health")
