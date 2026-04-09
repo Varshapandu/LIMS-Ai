@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -17,7 +17,7 @@ def build_access_token(email: str, role: str, full_name: str) -> str:
         "sub": email,
         "role": role,
         "full_name": full_name,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=8),
+        "exp": datetime.now(UTC) + timedelta(hours=8),
     }
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 

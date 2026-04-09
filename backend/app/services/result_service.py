@@ -12,8 +12,7 @@ dedicated services:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from decimal import Decimal
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
@@ -72,7 +71,7 @@ class ResultService:
             raise ValueError("Order test not found")
 
         order_test, test, visit, result = row
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         new_status = ResultStatus(payload.result_status)
 
         if not result:

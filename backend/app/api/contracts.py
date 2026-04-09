@@ -6,7 +6,7 @@ instead of ``typing.Optional[T]``.
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, EmailStr, Field

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -44,7 +43,7 @@ class PatientSummary(BaseModel):
     id: str
     patient_code: str
     full_name: str
-    mobile_number: Optional[str] = None
+    mobile_number: str | None = None
 
 
 class VisitSummary(BaseModel):

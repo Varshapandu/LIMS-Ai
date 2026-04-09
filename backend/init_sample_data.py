@@ -8,9 +8,9 @@ from pathlib import Path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
+from app.db.init_db import init_reference_data
 from app.db.session import SessionLocal, engine
 from app.models.models import Base
-from app.db.init_db import init_reference_data
 
 if __name__ == "__main__":
     # Create all tables

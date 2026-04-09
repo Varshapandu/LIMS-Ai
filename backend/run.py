@@ -2,7 +2,7 @@
 """Start the FastAPI backend server."""
 
 import os
-import sys
+
 import uvicorn
 
 if __name__ == "__main__":

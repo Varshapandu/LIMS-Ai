@@ -14,10 +14,10 @@ from app.api.routes.reports import router as reports_router
 from app.api.routes.results import router as results_router
 from app.api.routes.search import router as search_router
 from app.api.routes.specimens import router as specimens_router
+from app.core.config import settings
 from app.db.init_db import init_reference_data
 from app.db.session import SessionLocal, engine
 from app.models.models import Base
-from app.core.config import settings
 
 
 @asynccontextmanager

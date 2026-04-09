@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
@@ -61,7 +61,7 @@ class SpecimenService:
         specimen, order_test, visit = row
         previous_status = specimen.specimen_status
         new_status = SpecimenStatus(payload.specimen_status)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         specimen.specimen_status = new_status
         specimen.rejection_reason = payload.rejection_reason

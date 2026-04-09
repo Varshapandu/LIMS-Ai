@@ -7,7 +7,7 @@ result entry and approval workflows.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
@@ -56,7 +56,7 @@ class ReportGenerationService:
             raise ValueError("No approved results available for report generation")
 
         report = db.query(Report).filter(Report.visit_id == visit.id).first()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         if not report:
             report = Report(
@@ -167,7 +167,7 @@ class ReportGenerationService:
                 patient_name="Patient",
                 visit_number=visit_number,
                 report_number=report_number,
-                approved_at_label=approved_at.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+                approved_at_label=approved_at.astimezone(UTC).strftime("%Y-%m-%d %H:%M UTC"),
                 doctor_note=doctor_note,
                 analytes=[],
             )
@@ -183,7 +183,7 @@ class ReportGenerationService:
         )
 
         analytes: list[dict[str, str]] = []
-        for order_test, test, result in item_rows:
+        for _order_test, test, result in item_rows:
             raw_value = (
                 str(result.numeric_value)
                 if result and result.numeric_value is not None
@@ -207,7 +207,7 @@ class ReportGenerationService:
             patient_name=patient.full_name,
             visit_number=visit_number,
             report_number=report_number,
-            approved_at_label=approved_at.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+            approved_at_label=approved_at.astimezone(UTC).strftime("%Y-%m-%d %H:%M UTC"),
             doctor_note=doctor_note,
             analytes=analytes,
             pdf_bytes=ReportPdfService.build_report_pdf_bytes(
@@ -222,7 +222,7 @@ class ReportGenerationService:
             pdf_filename=f"{report_number}.pdf",
         )
         if delivery.sent:
-            delivered_at = datetime.now(timezone.utc)
+            delivered_at = datetime.now(UTC)
             report.delivered_at = delivered_at
             report.delivered_via = "email"
             report.report_status = ReportStatus.ISSUED

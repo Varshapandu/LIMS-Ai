@@ -1,10 +1,13 @@
 """Real-time event system for server-sent events and WebSocket support"""
 
-from typing import Callable, Dict, List, Set, Optional
-from enum import Enum
-from datetime import datetime, timezone
-from pydantic import BaseModel
+from __future__ import annotations
+
 import json
+from collections.abc import Callable
+from datetime import UTC, datetime
+from enum import Enum
+
+from pydantic import BaseModel
 
 
 class RealtimeEventType(str, Enum):
@@ -26,15 +29,15 @@ class RealtimeEvent(BaseModel):
     """Real-time event model"""
     type: RealtimeEventType
     timestamp: datetime
-    data: Dict
+    data: dict
 
 
 class RealtimeEventManager:
     """Manages real-time events and subscribers"""
     
     def __init__(self):
-        self.subscribers: Dict[RealtimeEventType | str, Set[Callable]] = {}
-        self.event_history: List[RealtimeEvent] = []
+        self.subscribers: dict[RealtimeEventType | str, set[Callable]] = {}
+        self.event_history: list[RealtimeEvent] = []
         self.max_history = 100
 
     def subscribe(self, event_type: RealtimeEventType | str, callback: Callable) -> Callable:
@@ -72,11 +75,11 @@ class RealtimeEventManager:
                 except Exception as e:
                     print(f"Error in event subscriber: {e}")
 
-    def emit_event(self, event_type: RealtimeEventType, data: Dict):
+    def emit_event(self, event_type: RealtimeEventType, data: dict):
         """Create and emit an event"""
         event = RealtimeEvent(
             type=event_type,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             data=data
         )
         self.emit(event)
@@ -91,7 +94,7 @@ realtime_manager = RealtimeEventManager()
 
 
 # Helper functions
-def emit_bill_event(action: str, bill_data: Dict):
+def emit_bill_event(action: str, bill_data: dict):
     """Emit bill event"""
     if action == "created":
         realtime_manager.emit_event(RealtimeEventType.BILL_CREATED, bill_data)
@@ -107,7 +110,7 @@ def emit_payment_event(invoice_number: str, amount: float):
     )
 
 
-def emit_patient_event(action: str, patient_data: Dict):
+def emit_patient_event(action: str, patient_data: dict):
     """Emit patient event"""
     if action == "created":
         realtime_manager.emit_event(RealtimeEventType.PATIENT_CREATED, patient_data)
@@ -115,7 +118,7 @@ def emit_patient_event(action: str, patient_data: Dict):
         realtime_manager.emit_event(RealtimeEventType.PATIENT_UPDATED, patient_data)
 
 
-def emit_test_event(action: str, test_data: Dict):
+def emit_test_event(action: str, test_data: dict):
     """Emit test event"""
     if action == "created":
         realtime_manager.emit_event(RealtimeEventType.TEST_CREATED, test_data)
@@ -123,7 +126,7 @@ def emit_test_event(action: str, test_data: Dict):
         realtime_manager.emit_event(RealtimeEventType.TEST_COMPLETED, test_data)
 
 
-def emit_result_event(action: str, result_data: Dict):
+def emit_result_event(action: str, result_data: dict):
     """Emit result event"""
     if action == "recorded":
         realtime_manager.emit_event(RealtimeEventType.RESULT_RECORDED, result_data)
@@ -131,9 +134,10 @@ def emit_result_event(action: str, result_data: Dict):
         realtime_manager.emit_event(RealtimeEventType.RESULT_APPROVED, result_data)
 
 
-def emit_specimen_event(action: str, specimen_data: Dict):
+def emit_specimen_event(action: str, specimen_data: dict):
     """Emit specimen event"""
     if action == "processed":
         realtime_manager.emit_event(RealtimeEventType.SPECIMEN_PROCESSED, specimen_data)
     elif action == "rejected":
         realtime_manager.emit_event(RealtimeEventType.SPECIMEN_REJECTED, specimen_data)
+

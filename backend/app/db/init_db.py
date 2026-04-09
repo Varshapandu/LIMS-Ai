@@ -1,15 +1,32 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from uuid import uuid4
 
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from datetime import datetime, timedelta, timezone
-
-from app.models.models import Department, Invoice, OrderHeader, OrderTest, Patient, ReferenceRange, ResultRecord, ResultStatus, Role, ServiceCategory, SexType, Specimen, SpecimenStatus, TestCatalog, User, Visit, VisitStatus
 from app.db.test_reference_data import build_reference_range_rows, get_test_metadata
+from app.models.models import (
+    Department,
+    Invoice,
+    OrderHeader,
+    OrderTest,
+    Patient,
+    ReferenceRange,
+    ResultRecord,
+    ResultStatus,
+    Role,
+    ServiceCategory,
+    SexType,
+    Specimen,
+    SpecimenStatus,
+    TestCatalog,
+    User,
+    Visit,
+    VisitStatus,
+)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -225,10 +242,10 @@ def _create_sample_data(db: Session, admin_user_id: str) -> None:
 
     # Get sample tests
     tests = db.query(TestCatalog).filter(TestCatalog.test_code.in_(["GLU", "CBC", "HBA1C"])).all()
-    test_map = {test.test_code: test for test in tests}
+    _test_map = {test.test_code: test for test in tests}  # noqa: F841
 
     # Create visits and orders
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     for idx, patient in enumerate(patients, start=1):
         visit_number = f"VIS-{2025}{str(idx).zfill(4)}"
         visit = Visit(
@@ -449,7 +466,7 @@ def _ensure_doctor_approval_case(db: Session, department_map: dict[str, Departme
     db.add(order_header)
     db.flush()
 
-    collected_at = datetime.now(timezone.utc) - timedelta(hours=2, minutes=45)
+    collected_at = datetime.now(UTC) - timedelta(hours=2, minutes=45)
     received_at = collected_at + timedelta(minutes=15)
     verified_at = received_at + timedelta(hours=2, minutes=5)
 

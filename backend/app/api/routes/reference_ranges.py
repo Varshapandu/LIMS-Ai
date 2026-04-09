@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import uuid4
 
@@ -27,7 +28,7 @@ def list_reference_ranges(
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ) -> list[ReferenceRangeListItem]:
-    query = db.query(ReferenceRange, TestCatalog).join(TestCatalog, TestCatalog.id == ReferenceRange.test_id)
+    query = db.query(ReferenceRange, TestCatalog).join(TestCatalog, TestCatalog.id == ReferenceRange.test_id).filter(ReferenceRange.is_deleted == False)
 
     if search:
         like = f"%{search.strip()}%"
@@ -143,11 +144,13 @@ def delete_reference_range(
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ) -> ReferenceRangeDeleteResponse:
-    reference_range = db.query(ReferenceRange).filter(ReferenceRange.id == reference_range_id).first()
+    reference_range = db.query(ReferenceRange).filter(ReferenceRange.id == reference_range_id, ReferenceRange.is_deleted == False).first()
     if not reference_range:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reference range not found")
 
-    db.delete(reference_range)
+    now = datetime.now(UTC)
+    reference_range.is_deleted = True
+    reference_range.deleted_at = now
     db.commit()
     return ReferenceRangeDeleteResponse(id=reference_range_id, deleted=True)
 

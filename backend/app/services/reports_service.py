@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
-from decimal import Decimal, ROUND_HALF_UP
+from datetime import datetime, timedelta
+from decimal import ROUND_HALF_UP, Decimal
 
 from sqlalchemy.orm import Session
 
@@ -238,7 +238,7 @@ class ReportsService:
         current_samples = len(current_rows)
         previous_samples = len(previous_rows)
         current_completed = sum(1 for row in current_rows if row.order_test.result_status == ResultStatus.APPROVED)
-        previous_completed = sum(1 for row in previous_rows if row.order_test.result_status == ResultStatus.APPROVED)
+        _previous_completed = sum(1 for row in previous_rows if row.order_test.result_status == ResultStatus.APPROVED)  # noqa: F841
 
         current_tat_values = [value for value in (ReportsService._row_tat_hours(row) for row in current_rows) if value is not None]
         previous_tat_values = [value for value in (ReportsService._row_tat_hours(row) for row in previous_rows) if value is not None]

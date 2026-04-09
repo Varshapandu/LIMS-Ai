@@ -7,9 +7,8 @@ cohesive service boundary.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
@@ -192,7 +191,7 @@ class ApprovalService:
         if not rows:
             raise ValueError("No ordered tests found for visit")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         approved_count = 0
         normalized_action = action.lower()
         report_number: str | None = None

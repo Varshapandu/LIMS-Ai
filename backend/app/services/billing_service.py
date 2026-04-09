@@ -1,14 +1,28 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
 from app.api.contracts import CreateInvoiceRequest, InvoiceSummaryResponse, PaymentRequest, PaymentResponse
-from app.models.models import Invoice, InvoiceItem, OrderHeader, OrderTest, Patient, Payment, PaymentStatus, Specimen, SpecimenEvent, SpecimenStatus, TestCatalog, Visit, VisitStatus
+from app.models.models import (
+    Invoice,
+    InvoiceItem,
+    OrderHeader,
+    OrderTest,
+    Patient,
+    Payment,
+    PaymentStatus,
+    Specimen,
+    SpecimenEvent,
+    SpecimenStatus,
+    TestCatalog,
+    Visit,
+    VisitStatus,
+)
 
 
 @dataclass
@@ -44,7 +58,7 @@ class BillingService:
         gross = sum((line.price * line.quantity for line in payload.lines), start=Decimal("0.00"))
         net = gross - payload.discount_amount
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         visit_number = f"VIS-{now:%Y%m%d}-{uuid4().hex[:6].upper()}"
         invoice_number = f"INV-{now:%Y%m%d}-{uuid4().hex[:6].upper()}"
         order_number = f"ORD-{now:%Y%m%d}-{uuid4().hex[:6].upper()}"
@@ -203,7 +217,7 @@ class BillingService:
         if payload.amount > visit.due_amount:
             raise ValueError("Payment amount cannot exceed due amount")
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payment_reference = payload.payment_reference or f"PAY-{now:%Y%m%d}-{uuid4().hex[:6].upper()}"
         new_paid_amount = (visit.paid_amount or Decimal("0.00")) + payload.amount
         new_due_amount = max(Decimal("0.00"), invoice.net_amount - new_paid_amount)
