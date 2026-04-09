@@ -16,6 +16,7 @@ from app.api.contracts import (
 from app.core.auth_deps import CurrentUser, get_current_user
 from app.db.session import get_db
 from app.models.models import ReferenceRange, SexType, TestCatalog
+from app.services.audit_service import log_audit
 
 router = APIRouter(prefix="/reference-ranges", tags=["reference-ranges"])
 
@@ -151,6 +152,14 @@ def delete_reference_range(
     now = datetime.now(UTC)
     reference_range.is_deleted = True
     reference_range.deleted_at = now
+    log_audit(
+        db,
+        entity_type="ReferenceRange",
+        entity_id=reference_range_id,
+        action="soft_delete",
+        actor_id=current_user.user_id,
+        actor_name=current_user.full_name,
+    )
     db.commit()
     return ReferenceRangeDeleteResponse(id=reference_range_id, deleted=True)
 

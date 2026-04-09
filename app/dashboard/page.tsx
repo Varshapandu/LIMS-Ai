@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 
 import { AppShell } from "../components/app-shell";
 import { ExportIcon } from "../components/icons";
+import { StatsGridSkeleton, PanelSkeleton } from "../components/skeletons";
 import { apiRequest } from "../lib/api";
 import { calculateDashboardMetrics } from "../lib/billing-storage";
 import { downloadBlob } from "../lib/browser-file";
@@ -149,7 +150,7 @@ export default function DashboardPage() {
       if (active) {
         fetchDashboardData();
       }
-    }, 5000);
+    }, 30000);
 
     return () => {
       active = false;
@@ -195,6 +196,16 @@ export default function DashboardPage() {
         </button>
       }
     >
+      {loading ? (
+        <>
+          <StatsGridSkeleton count={4} />
+          <div className="content-grid" style={{ marginTop: 36 }}>
+            <PanelSkeleton lines={6} height={380} />
+            <PanelSkeleton lines={4} height={380} />
+          </div>
+        </>
+      ) : (
+      <>
       <section className="stats-grid">
         {statCards.map((card, index) => (
           <article className={`stat-card${index === 2 ? " red" : ""}`} key={card.label}>
@@ -296,6 +307,8 @@ export default function DashboardPage() {
           </section>
         </div>
       </section>
+      </>
+      )}
     </AppShell>
   );
 }

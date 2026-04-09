@@ -43,7 +43,7 @@ class ReportGenerationService:
     def generate_report(db: Session, visit_number: str) -> ReportResponse:
         """Create or refresh a report record for the given visit."""
 
-        visit = db.query(Visit).filter(Visit.visit_number == visit_number).first()
+        visit = db.query(Visit).filter(Visit.visit_number == visit_number, Visit.is_deleted == False).first()  # noqa: E712
         if not visit:
             raise ValueError("Visit not found")
 
@@ -55,7 +55,7 @@ class ReportGenerationService:
         if approved_tests == 0:
             raise ValueError("No approved results available for report generation")
 
-        report = db.query(Report).filter(Report.visit_id == visit.id).first()
+        report = db.query(Report).filter(Report.visit_id == visit.id, Report.is_deleted == False).first()  # noqa: E712
         now = datetime.now(UTC)
 
         if not report:

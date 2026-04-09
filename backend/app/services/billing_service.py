@@ -44,7 +44,7 @@ class BillingResult:
 class BillingService:
     @staticmethod
     def create_invoice(db: Session, payload: CreateInvoiceRequest) -> BillingResult:
-        patient = db.query(Patient).filter(Patient.id == payload.patient_id).first()
+        patient = db.query(Patient).filter(Patient.id == payload.patient_id, Patient.is_deleted == False).first()  # noqa: E712
         if not patient:
             raise ValueError("Patient not found")
 
@@ -179,7 +179,7 @@ class BillingService:
             db.query(Invoice, Visit, Patient)
             .join(Visit, Invoice.visit_id == Visit.id)
             .join(Patient, Visit.patient_id == Patient.id)
-            .filter(Invoice.invoice_number == invoice_number)
+            .filter(Invoice.invoice_number == invoice_number, Invoice.is_deleted == False)  # noqa: E712
             .first()
         )
         if not row:
@@ -207,7 +207,7 @@ class BillingService:
         row = (
             db.query(Invoice, Visit)
             .join(Visit, Invoice.visit_id == Visit.id)
-            .filter(Invoice.invoice_number == payload.invoice_number)
+            .filter(Invoice.invoice_number == payload.invoice_number, Invoice.is_deleted == False)  # noqa: E712
             .first()
         )
         if not row:

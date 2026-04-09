@@ -41,7 +41,7 @@ class PatientService:
 
     @staticmethod
     def update_patient(db: Session, patient_id: str, payload: UpdatePatientRequest) -> PatientResponse:
-        patient = db.query(Patient).filter(Patient.id == patient_id).first()
+        patient = db.query(Patient).filter(Patient.id == patient_id, Patient.is_deleted == False).first()  # noqa: E712
         if not patient:
             raise ValueError("Patient not found")
 

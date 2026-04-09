@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 "use client";
 
@@ -21,6 +21,7 @@ import {
   SettingsIcon,
 } from "./icons";
 import { ChatBot } from "./chatbot";
+import { ErrorBoundary } from "./error-boundary";
 import { loadNotifications, getUnreadCount, markAllNotificationsAsRead, Notification } from "../lib/notifications-storage";
 import { clearSession, DEFAULT_AUTH_USER, loadStoredUser, saveStoredUser, type AuthUser } from "../lib/auth-storage";
 
@@ -291,7 +292,9 @@ export function AppShell({ overline, title, action, searchPlaceholder = "Search 
               </div>
             </>
           )}
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </div>
       </section>
 

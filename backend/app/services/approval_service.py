@@ -34,6 +34,7 @@ from app.models.models import (
     Visit,
     VisitStatus,
 )
+from app.services.audit_service import log_audit
 from app.services.flag_evaluation_service import FlagEvaluationService
 from app.services.report_generation_service import ReportGenerationService
 
@@ -72,7 +73,7 @@ class ApprovalService:
             raise ValueError("No approval case found")
 
         first_order_test, visit, patient, first_test, first_specimen, first_result = rows[0]
-        invoice = db.query(Invoice).filter(Invoice.visit_id == visit.id).first()
+        invoice = db.query(Invoice).filter(Invoice.visit_id == visit.id, Invoice.is_deleted == False).first()  # noqa: E712
 
         analytes = [
             ApprovalService._to_approval_analyte(order_test, test, specimen, result)
@@ -176,7 +177,7 @@ class ApprovalService:
     ) -> VisitApprovalResponse:
         """Approve, finalize, or request retest for all results in a visit."""
 
-        visit = db.query(Visit).filter(Visit.visit_number == visit_number).first()
+        visit = db.query(Visit).filter(Visit.visit_number == visit_number, Visit.is_deleted == False).first()  # noqa: E712
         if not visit:
             raise ValueError("Visit not found")
         if (visit.due_amount or Decimal("0.00")) > Decimal("0.00"):
@@ -236,6 +237,22 @@ class ApprovalService:
             _refresh_visit_status(db, visit.id)
             message = "Result approved successfully."
 
+        db.commit()
+
+        # --- Audit log ---
+        actor_id = current_user.user_id if current_user else None
+        actor_name = current_user.full_name if current_user else None
+        log_audit(
+            db,
+            entity_type="Visit",
+            entity_id=visit.id,
+            action=normalized_action,
+            field_name="visit_status",
+            old_value=None,
+            new_value=visit.visit_status.value,
+            actor_id=actor_id,
+            actor_name=actor_name,
+        )
         db.commit()
 
         if normalized_action == "finalize":
