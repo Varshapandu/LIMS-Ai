@@ -1,4 +1,4 @@
-﻿/* Approvals page styles */
+/* Approvals page styles */
 .approval-page {
   padding-top: 28px;
 }
@@ -49,12 +49,19 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border: 1px solid #e7e3da;
-  border-radius: 12px;
-  padding: 18px 28px;
-  font-size: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 24px;
+  font-size: 15px;
   font-weight: 700;
-  box-shadow: 0 10px 24px rgba(14, 23, 48, 0.06);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast) var(--ease-out);
+  cursor: pointer;
+}
+
+.approval-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .approval-btn-icon {
@@ -85,8 +92,14 @@
 
 .approval-btn-navy {
   border-color: transparent;
-  background: #0b1530;
+  background: linear-gradient(135deg, #0b1530, #162440);
   color: #ffffff;
+  box-shadow: 0 12px 28px rgba(11, 21, 48, 0.25);
+}
+
+.approval-btn-navy:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0f1d3d, #1a2f52);
+  box-shadow: 0 16px 36px rgba(11, 21, 48, 0.35);
 }
 
 .approval-status-note {
@@ -263,11 +276,11 @@
 }
 
 .approval-analysis-panel {
-  border: 1px solid #ebe6dc;
-  border-radius: 20px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  background: #ffffff;
-  box-shadow: 0 24px 56px rgba(17, 34, 58, 0.06);
+  background: var(--paper);
+  box-shadow: var(--shadow-md);
 }
 
 .approval-analysis-topbar,
@@ -320,6 +333,11 @@
   padding: 24px 30px;
   border-bottom: 1px solid #efebe2;
   background: #fffdfb;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.approval-analysis-row:hover {
+  background: #f8f7f4;
 }
 
 .approval-analysis-row::before {
@@ -555,10 +573,11 @@
   width: 16px;
   height: 16px;
   border: 3px solid #13213f;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: #ffffff;
   transform: translate(-50%, -50%);
   box-shadow: 0 6px 18px rgba(19, 33, 63, 0.16);
+  transition: left var(--duration-slow) var(--ease-out);
 }
 
 .approval-analytics-scale-labels {

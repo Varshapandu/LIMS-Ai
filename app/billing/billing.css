@@ -1,4 +1,4 @@
-﻿/* Billing page styles */
+/* Billing page styles */
 .billing-panel,
 .billing-summary-card {
   padding: 32px;
@@ -26,11 +26,12 @@
   left: 0;
   right: 0;
   z-index: 12;
-  background: #fff;
-  border: 1px solid #dfe8ea;
-  border-radius: 18px;
-  box-shadow: 0 20px 40px rgba(17, 34, 58, 0.08);
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
+  animation: fadeInUp var(--duration-normal) var(--ease-out) both;
 }
 
 .search-result-item {
@@ -74,9 +75,16 @@
   justify-content: space-between;
   gap: 18px;
   padding: 18px 20px;
-  border: 1px solid #e5eeef;
-  border-radius: 18px;
-  background: #fcfefe;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  transition: box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.selected-test-row:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .selected-test-controls {
@@ -118,8 +126,9 @@
 .totals-card {
   margin-top: 26px;
   padding: 22px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, #f7fbfb 0%, #f1f6f8 100%);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #f0f9f9 0%, #edf4f8 100%);
+  border: 1px solid rgba(11, 141, 146, 0.08);
 }
 
 .totals-lines {
@@ -213,10 +222,10 @@
 
 .invoice-item {
   padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   background: #f9fafb;
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) var(--ease-out);
   border-left: 4px solid #d1d5db;
   cursor: pointer;
 }
@@ -237,7 +246,7 @@
 }
 
 .invoice-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
