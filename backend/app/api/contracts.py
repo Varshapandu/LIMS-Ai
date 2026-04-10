@@ -505,3 +505,56 @@ class ReferenceRangeUpsertRequest(BaseModel):
 class ReferenceRangeDeleteResponse(BaseModel):
     id: str
     deleted: bool = True
+
+
+class ResendReportEmailRequest(BaseModel):
+    visit_number: str
+
+
+class ResendReportEmailResponse(BaseModel):
+    sent: bool
+    delivered_to: str | None = None
+    error: str | None = None
+    attempts: int = 1
+
+
+# ---------------------------------------------------------------------------
+# Razorpay Payment Gateway
+# ---------------------------------------------------------------------------
+
+class RazorpayOrderRequest(BaseModel):
+    """Request to create a Razorpay order for an invoice."""
+    invoice_number: str
+    amount: Decimal = Field(gt=Decimal("0.00"))
+
+
+class RazorpayOrderResponse(BaseModel):
+    """Response with Razorpay order details for the frontend checkout."""
+    razorpay_order_id: str
+    amount: int  # amount in paise
+    currency: str = "INR"
+    key_id: str
+    invoice_number: str
+    patient_name: str
+    patient_email: str | None = None
+    patient_phone: str | None = None
+
+
+class RazorpayVerifyRequest(BaseModel):
+    """Request to verify a Razorpay payment after checkout."""
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+    invoice_number: str
+    amount: Decimal = Field(gt=Decimal("0.00"))
+
+
+class RazorpayVerifyResponse(BaseModel):
+    """Response after verifying and recording a Razorpay payment."""
+    verified: bool
+    payment_id: str | None = None
+    payment_reference: str | None = None
+    payment_status: str | None = None
+    paid_amount: Decimal | None = None
+    due_amount: Decimal | None = None
+    message: str

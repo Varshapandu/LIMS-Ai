@@ -347,3 +347,278 @@
 .notification-item.clickable:hover {
   background: linear-gradient(135deg, rgba(17, 194, 200, 0.12) 0%, rgba(17, 194, 200, 0.05) 100%);
 }
+
+
+/* Razorpay Payment Gateway Styles */
+.razorpay-section {
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 50%, #f0f9f9 100%);
+  border: 1px solid rgba(42, 93, 246, 0.12);
+}
+
+.razorpay-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1f36;
+  margin-bottom: 4px;
+}
+
+.razorpay-section-desc {
+  font-size: 12.5px;
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.razorpay-pay-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2a5df6 0%, #1a3dbc 50%, #072bb5 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(42, 93, 246, 0.3);
+}
+
+.razorpay-pay-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: razorpayShimmer 3s infinite;
+}
+
+@keyframes razorpayShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.razorpay-pay-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(42, 93, 246, 0.4);
+  background: linear-gradient(135deg, #3a6df8 0%, #2a4dd0 50%, #1238c0 100%);
+}
+
+.razorpay-pay-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(42, 93, 246, 0.3);
+}
+
+.razorpay-pay-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.razorpay-pay-btn:disabled::before {
+  animation: none;
+}
+
+.razorpay-pay-btn .rzp-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.razorpay-pay-btn .rzp-amount {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.razorpay-methods {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(42, 93, 246, 0.1);
+}
+
+.razorpay-method-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.razorpay-method-chip .method-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2a5df6;
+  opacity: 0.6;
+}
+
+.razorpay-or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 6px;
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.razorpay-or-divider::before,
+.razorpay-or-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+/* Payment success overlay */
+.payment-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.payment-success-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 48px 40px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+  animation: successPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes successPop {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.success-checkmark {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: checkBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+@keyframes checkBounce {
+  from {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.success-checkmark svg {
+  width: 40px;
+  height: 40px;
+  color: #ffffff;
+}
+
+.success-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1f36;
+  margin-bottom: 8px;
+}
+
+.success-amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: #10b981;
+  margin-bottom: 6px;
+}
+
+.success-ref {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.success-close-btn {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.success-close-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* Processing spinner for Razorpay */
+.rzp-processing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rzp-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

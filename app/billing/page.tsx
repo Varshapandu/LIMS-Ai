@@ -1,5 +1,12 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 import "./billing.css";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -252,6 +259,12 @@ export default function BillingPage() {
   const [currentPatient, setCurrentPatient] = useState<CreatedPatient | null>(null);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [updatingPatientEmail, setUpdatingPatientEmail] = useState(false);
+  const [razorpayProcessing, setRazorpayProcessing] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState<{
+    amount: number;
+    reference: string;
+    dueAmount: number;
+  } | null>(null);
   const [generatedBills, setGeneratedBills] = useState<StoredBill[]>([]);
   const invoiceRefsMap = useRef<Map<string, HTMLDivElement | null>>(new Map());
 
@@ -624,6 +637,163 @@ export default function BillingPage() {
     }
   }
 
+  async function handleRazorpayPayment() {
+    if (!invoice || !invoiceSummary) {
+      return;
+    }
+
+    const amount = Number(paymentAmount || 0);
+    if (amount <= 0) {
+      setStatusMessage("Enter a valid amount to pay.");
+      return;
+    }
+
+    setRazorpayProcessing(true);
+    setStatusMessage("Creating Razorpay order...");
+
+    try {
+      // Step 1: Create a Razorpay order via backend
+      const orderData = await apiRequest<{
+        razorpay_order_id: string;
+        amount: number;
+        currency: string;
+        key_id: string;
+        invoice_number: string;
+        patient_name: string;
+        patient_email: string | null;
+        patient_phone: string | null;
+      }>("/api/billing/razorpay/create-order", {
+        method: "POST",
+        body: JSON.stringify({
+          invoice_number: invoice.invoice_number,
+          amount: amount,
+        }),
+      });
+
+      // Step 2: Open Razorpay Checkout
+      const options = {
+        key: orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "AI LIMS",
+        description: `Payment for ${orderData.invoice_number}`,
+        order_id: orderData.razorpay_order_id,
+        prefill: {
+          name: orderData.patient_name,
+          email: orderData.patient_email || "",
+          contact: orderData.patient_phone || "",
+        },
+        theme: {
+          color: "#2a5df6",
+        },
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          // Step 3: Verify payment with backend
+          setStatusMessage("Verifying payment...");
+          try {
+            const verification = await apiRequest<{
+              verified: boolean;
+              payment_id: string | null;
+              payment_reference: string | null;
+              payment_status: string | null;
+              paid_amount: string | null;
+              due_amount: string | null;
+              message: string;
+            }>("/api/billing/razorpay/verify-payment", {
+              method: "POST",
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                invoice_number: invoice.invoice_number,
+                amount: amount,
+              }),
+            });
+
+            if (verification.verified) {
+              // Refresh invoice summary
+              try {
+                const summary = await apiRequest<InvoiceSummary>(
+                  `/api/billing/invoices/${invoice.invoice_number}`
+                );
+                setInvoiceSummary(summary);
+                setPaymentAmount("0");
+              } catch {
+                // Update locally if refresh fails
+                if (invoiceSummary) {
+                  const paidAmount = Number(invoiceSummary.paid_amount) + amount;
+                  const dueAmount = Math.max(0, Number(invoiceSummary.net_amount) - paidAmount);
+                  setInvoiceSummary({
+                    ...invoiceSummary,
+                    paid_amount: String(paidAmount),
+                    due_amount: String(dueAmount),
+                    payment_status: dueAmount === 0 ? "paid" : "partial",
+                  });
+                  setPaymentAmount("0");
+                }
+              }
+
+              // Show success overlay
+              setPaymentSuccess({
+                amount: amount,
+                reference: verification.payment_reference || response.razorpay_payment_id,
+                dueAmount: Number(verification.due_amount || 0),
+              });
+
+              setStatusMessage(verification.message);
+
+              // Update persistent storage
+              recordPaymentToStorage(invoice.invoice_number, amount);
+
+              // Add notification
+              addNotification(
+                `Razorpay payment of Rs ${amount.toLocaleString("en-IN")} verified for invoice ${invoice.invoice_number}. Ref: ${verification.payment_reference || response.razorpay_payment_id}`,
+                "success",
+                undefined,
+                invoice.invoice_number
+              );
+            } else {
+              setStatusMessage(`Payment verification failed: ${verification.message}`);
+            }
+          } catch (error) {
+            setStatusMessage(
+              error instanceof Error ? error.message : "Payment verification failed."
+            );
+          }
+          setRazorpayProcessing(false);
+        },
+        modal: {
+          ondismiss: () => {
+            setRazorpayProcessing(false);
+            setStatusMessage("Payment was cancelled.");
+          },
+        },
+      };
+
+      if (typeof window.Razorpay === "undefined") {
+        setStatusMessage("Razorpay checkout script is not loaded. Please refresh the page.");
+        setRazorpayProcessing(false);
+        return;
+      }
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", (response: any) => {
+        setRazorpayProcessing(false);
+        setStatusMessage(
+          `Payment failed: ${response.error?.description || "Unknown error"}. Code: ${response.error?.code || "N/A"}`
+        );
+      });
+      rzp.open();
+    } catch (error) {
+      setRazorpayProcessing(false);
+      const message = error instanceof Error ? error.message : "Failed to create Razorpay order.";
+      setStatusMessage(message);
+    }
+  }
+
   function handleExportBillingData() {
     if (!invoice || !invoiceSummary) {
       setStatusMessage("Generate a bill first before exporting data.");
@@ -857,8 +1027,48 @@ export default function BillingPage() {
             <div className="panel-title">Payment Capture</div>
             <div className="panel-copy">Post payment directly against the generated invoice.</div>
             <div className="field"><label className="label">Amount</label><input className="input" type="number" min="0" value={paymentAmount} onChange={(event) => setPaymentAmount(event.target.value)} disabled={!invoice} /></div>
+
+            {/* Razorpay Online Payment */}
+            <div className="razorpay-section">
+              <div className="razorpay-section-title">Online Payment</div>
+              <div className="razorpay-section-desc">Pay securely via UPI, Cards, Net Banking or Wallets</div>
+              <button
+                className="razorpay-pay-btn"
+                type="button"
+                disabled={!invoice || razorpayProcessing || Number(paymentAmount || 0) <= 0}
+                onClick={() => void handleRazorpayPayment()}
+                id="razorpay-pay-button"
+              >
+                {razorpayProcessing ? (
+                  <span className="rzp-processing">
+                    <span className="rzp-spinner" />
+                    Processing...
+                  </span>
+                ) : (
+                  <>
+                    <svg className="rzp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                      <line x1="1" y1="10" x2="23" y2="10" />
+                    </svg>
+                    Pay with Razorpay
+                    {Number(paymentAmount || 0) > 0 && (
+                      <span className="rzp-amount">• Rs {Number(paymentAmount).toLocaleString("en-IN")}</span>
+                    )}
+                  </>
+                )}
+              </button>
+              <div className="razorpay-methods">
+                <span className="razorpay-method-chip"><span className="method-dot" />UPI</span>
+                <span className="razorpay-method-chip"><span className="method-dot" />Cards</span>
+                <span className="razorpay-method-chip"><span className="method-dot" />Net Banking</span>
+                <span className="razorpay-method-chip"><span className="method-dot" />Wallets</span>
+              </div>
+            </div>
+
+            <div className="razorpay-or-divider">or pay manually</div>
+
             <div className="field"><label className="label">Mode</label><select className="input" value={paymentMode} onChange={(event) => setPaymentMode(event.target.value)} disabled={!invoice}><option value="cash">Cash</option><option value="card">Card</option><option value="upi">UPI</option><option value="bank">Bank</option></select></div>
-            <button className="secondary-btn" type="button" disabled={!invoice} onClick={() => { setStatusMessage("Processing payment..."); handlePayment(); }}>Record Payment</button>
+            <button className="secondary-btn" type="button" disabled={!invoice} onClick={() => { setStatusMessage("Processing payment..."); handlePayment(); }}>Record Manual Payment</button>
           </section>
 
           <section className="panel">
@@ -942,6 +1152,28 @@ export default function BillingPage() {
           </section>
         </div>
       </section>
+
+      {/* Razorpay Payment Success Overlay */}
+      {paymentSuccess && (
+        <div className="payment-success-overlay" onClick={() => setPaymentSuccess(null)}>
+          <div className="payment-success-card" onClick={(e) => e.stopPropagation()}>
+            <div className="success-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div className="success-title">Payment Successful!</div>
+            <div className="success-amount">Rs {paymentSuccess.amount.toLocaleString("en-IN")}</div>
+            <div className="success-ref">
+              Reference: {paymentSuccess.reference}
+              {paymentSuccess.dueAmount > 0 && (
+                <><br />Remaining Due: Rs {paymentSuccess.dueAmount.toLocaleString("en-IN")}</>
+              )}
+            </div>
+            <button className="success-close-btn" type="button" onClick={() => setPaymentSuccess(null)}>Continue</button>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

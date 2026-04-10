@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = True
     smtp_use_ssl: bool = False
 
+    # Razorpay Payment Gateway
+    razorpay_key_id: str = ""
+    razorpay_key_secret: str = ""
+
     @model_validator(mode="after")
     def _validate_secrets(self) -> "Settings":
         if not self.jwt_secret or self.jwt_secret == "change-me":
